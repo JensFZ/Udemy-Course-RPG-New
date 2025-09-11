@@ -17,10 +17,18 @@ public class Player : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed;
+
+    [Range(0,1)]
+    public float inAirMoveMultiplier = 0.7f; // shoud be between 0 and 1
+
     public float jumpForce = 5;
     private bool facingRight = true; // Default schaut er nach rechts
     public Vector2 moveInput { get; private set; }
 
+    [Header("Collision detection")]
+    [SerializeField] private float groundCheckDistance;
+    [SerializeField] private LayerMask groundLayer;
+    public bool groundDetected { get; private set; }
 
     private void Awake()
     {
@@ -58,6 +66,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        HandleCollisionDetection();
         stateMachine.UpdateActiveState();
     }
 
@@ -82,5 +91,16 @@ public class Player : MonoBehaviour
     {
         transform.Rotate(0, 180, 0);
         facingRight = !facingRight;
+    }
+
+    private void HandleCollisionDetection()
+    {
+        groundDetected = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayer);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, -groundCheckDistance));
     }
 }
